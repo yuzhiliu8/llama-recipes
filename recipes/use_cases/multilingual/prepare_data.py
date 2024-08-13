@@ -2,21 +2,22 @@ import fire
 import os
 from datasets import load_dataset
 
-DATASET = "rahular/varta"
 
-def main(split="validation", lang="hi", docs_to_sample=10_000, save_path="data"):
-    dataset = load_dataset(DATASET, split=split, streaming=True)
+
+def main(DATASET="yuzhiliu8/Multilingual-orig", config_name="train", split="sw_train", lang="sw", save_path="data"):
+    print(DATASET, split, lang)
+    dataset = load_dataset(DATASET, config_name, split='sw_train', streaming=True)
     os.makedirs(save_path, exist_ok=True)
-    with open(os.path.join(save_path, f"{lang}.txt"), "w") as f:
+    with open(os.path.join(save_path, f"{lang}.txt"), "w") as file:
         count = 0
-        for idx, d in enumerate(dataset):
-            if idx % 10_000 == 0:
-                print(f"Searched {idx} documents for {lang} documents. Found {count} documents.")
-            if count >= docs_to_sample:
-                break
-            if d["langCode"] == lang:
-                f.write(d["headline"] + "\n" + d["text"] + "\n")
+        for row in dataset:
+            if (row['Text'] is None):
                 count += 1
+            else:
+                file.write(row['Text'] + '\n')
+        print("bad rows:", count)
+
+        
 
 
 if __name__ == "__main__":
