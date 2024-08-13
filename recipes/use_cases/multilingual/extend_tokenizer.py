@@ -11,9 +11,11 @@ os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 from huggingface_hub import hf_hub_download
 from sentencepiece import sentencepiece_model_pb2 as sp_pb2_model
 
+pretrain_model = "TinyLlama/TinyLlama_v1.1"
+
 
 def main(new_tokenizer_path, extended_tokenizer_save_path):
-    original_tokenizer_path = hf_hub_download(repo_id="meta-llama/Llama-2-7b-chat-hf", filename="tokenizer.model", local_dir="original_tokenizer")
+    original_tokenizer_path = hf_hub_download(repo_id=pretrain_model, filename="tokenizer.model", local_dir="original_tokenizer")
     original_tokenizer_spm = sp_pb2_model.ModelProto()
     original_tokenizer_spm.ParseFromString(open(original_tokenizer_path, "rb").read())
     new_tokenizer_spm = sp_pb2_model.ModelProto()
@@ -42,7 +44,7 @@ def main(new_tokenizer_path, extended_tokenizer_save_path):
     print(f"Tokenizer saved to {extended_tokenizer_save_path}")
 
     # Verify that the extended tokenizer's English vocab matches with that of the original Llama tokenizer
-    tok1 = LlamaTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf')
+    tok1 = LlamaTokenizer.from_pretrained(pretrain_model)
     tok2 = LlamaTokenizer.from_pretrained(extended_tokenizer_save_path)
     for i in range(len(tok1)):
         assert tok1.convert_ids_to_tokens(i) == tok2.convert_ids_to_tokens(i), f"Token mismatch at index {i}."
